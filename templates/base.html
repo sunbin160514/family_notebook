@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}温馨家庭记事本{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">🏠 温馨家庭记事本</h1>
+                <nav class="nav">
+                    <a href="{{ url_for('index') }}" class="nav-link">🏡 首页</a>
+                    <a href="{{ url_for('add_member') }}" class="nav-link btn-add">➕ 添加家人</a>
+                    <a href="{{ url_for('export_data') }}" class="nav-link btn-export">📥 导出数据</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="footer">
+            <p>💕 记录美好，珍藏温馨时光</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

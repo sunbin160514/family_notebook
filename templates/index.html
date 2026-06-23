@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 搜索栏 -->
+<section class="search-section">
+    <form class="search-form" action="{{ url_for('index') }}" method="GET">
+        <div class="search-input-wrapper">
+            <input type="text"
+                   name="search"
+                   class="search-input"
+                   placeholder="🔍 搜索姓名或昵称..."
+                   value="{{ search }}">
+            <button type="submit" class="search-btn">搜索</button>
+            {% if search %}
+            <a href="{{ url_for('index') }}" class="clear-btn">清除</a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
+<!-- 生日提醒 -->
+{% if birthday_reminders %}
+<section class="reminder-section">
+    <h2 class="section-title">
+        🎂 近期生日提醒
+        <span class="reminder-subtitle">接下来7天内有过生日的家人</span>
+    </h2>
+    <div class="reminder-list">
+        {% for reminder in birthday_reminders %}
+        <div class="reminder-card">
+            <div class="reminder-info">
+                <span class="reminder-name">{{ reminder.name }}</span>
+                {% if reminder.nickname %}
+                <span class="reminder-nickname">({{ reminder.nickname }})</span>
+                {% endif %}
+            </div>
+            <div class="reminder-details">
+                <span class="reminder-date">{{ reminder.solar_birthday }}</span>
+                <span class="reminder-days {% if reminder.days_until == 0 %}today{% endif %}">
+                    {% if reminder.days_until == 0 %}
+                    🎉 今天生日！
+                    {% else %}
+                    还有 {{ reminder.days_until }} 天
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- 家人列表 -->
+<section class="members-section">
+    <h2 class="section-title">👨‍👩‍👧‍👦 家人列表 <span class="count">({{ members|length }}人)</span></h2>
+
+    {% if members %}
+    <div class="members-grid">
+        {% for member in members %}
+        <div class="member-card">
+            <div class="card-header">
+                <div class="avatar">
+                    {{ member.name[0] }}
+                </div>
+                <div class="name-section">
+                    <h3 class="name">{{ member.name }}</h3>
+                    {% if member.nickname %}
+                    <span class="nickname">{{ member.nickname }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-actions">
+                    <a href="{{ url_for('member_detail', member_id=member.id) }}" class="action-btn view" title="查看详情">👁️</a>
+                    <a href="{{ url_for('edit_member', member_id=member.id) }}" class="action-btn edit" title="编辑">✏️</a>
+                    <button class="action-btn delete" title="删除" onclick="deleteMember({{ member.id }}, '{{ member.name }}')">🗑️</button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% if member.solar_birthday or member.lunar_birthday %}
+                <div class="info-row birthday">
+                    <span class="label">🎂 生日：</span>
+                    <span class="value">
+                        {% if member.solar_birthday %}
+                        阳历 {{ member.solar_birthday }}
+                        {% endif %}
+                        {% if member.solar_birthday and member.lunar_birthday %} | {% endif %}
+                        {% if member.lunar_birthday %}
+                        阴历 {{ member.lunar_birthday }}
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if member.favorite_foods %}
+                <div class="info-row">
+                    <span class="label">😋 喜欢的食物：</span>
+                    <span class="value">{{ member.favorite_foods }}</span>
+                </div>
+                {% endif %}
+
+                {% if member.favorite_sports %}
+                <div class="info-row">
+                    <span class="label">🏃 喜欢的运动：</span>
+                    <span class="value">{{ member.favorite_sports }}</span>
+                </div>
+                {% endif %}
+
+                {% if member.disliked_foods %}
+                <div class="info-row warning">
+                    <span class="label">🚫 讨厌的食物：</span>
+                    <span class="value">{{ member.disliked_foods }}</span>
+                </div>
+                {% endif %}
+
+                {% if member.daily_notes %}
+                <div class="info-row important">
+                    <span class="label">⚠️ 日常注意：</span>
+                    <span class="value">{{ member.daily_notes }}</span>
+                </div>
+                {% endif %}
+
+                {% if member.remarks %}
+                <div class="info-row notes">
+                    <span class="label">📝 备注：</span>
+                    <span class="value">{{ member.remarks }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🏠</div>
+        <p class="empty-text">还没有家人信息哦</p>
+        <p class="empty-subtext">点击右上角的"添加家人"开始记录吧 💕</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteMember(id, name) {
+    if (confirm(`确定要删除 "${name}" 的信息吗？\n此操作不可恢复。`)) {
+        fetch(`/api/members/${id}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('删除成功！');
+                window.location.reload();
+            } else {
+                alert('删除失败：' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('删除出错：' + error);
+        });
+    }
+}
+</script>
+{% endblock %}

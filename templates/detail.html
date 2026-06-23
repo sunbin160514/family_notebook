@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ member.name }} - 温馨家庭记事本{% endblock %}
+
+{% block content %}
+<section class="detail-section">
+    <div class="detail-header">
+        <a href="{{ url_for('index') }}" class="back-link">← 返回列表</a>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-avatar-section">
+            <div class="detail-avatar">{{ member.name[0] }}</div>
+            <h2 class="detail-name">{{ member.name }}</h2>
+            {% if member.nickname %}
+            <p class="detail-nickname">{{ member.nickname }}</p>
+            {% endif %}
+        </div>
+
+        <div class="detail-info">
+            {% if member.solar_birthday or member.lunar_birthday %}
+            <div class="detail-row">
+                <div class="detail-label">🎂 生日</div>
+                <div class="detail-value">
+                    {% if member.solar_birthday %}
+                    <div>阳历：{{ member.solar_birthday }}</div>
+                    {% endif %}
+                    {% if member.lunar_birthday %}
+                    <div>阴历：{{ member.lunar_birthday }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if member.favorite_foods %}
+            <div class="detail-row">
+                <div class="detail-label">😋 喜欢的食物</div>
+                <div class="detail-value">{{ member.favorite_foods }}</div>
+            </div>
+            {% endif %}
+
+            {% if member.favorite_sports %}
+            <div class="detail-row">
+                <div class="detail-label">🏃 喜欢的运动</div>
+                <div class="detail-value">{{ member.favorite_sports }}</div>
+            </div>
+            {% endif %}
+
+            {% if member.disliked_foods %}
+            <div class="detail-row warning">
+                <div class="detail-label">🚫 讨厌的食物</div>
+                <div class="detail-value">{{ member.disliked_foods }}</div>
+            </div>
+            {% endif %}
+
+            {% if member.daily_notes %}
+            <div class="detail-row important">
+                <div class="detail-label">⚠️ 日常注意事项</div>
+                <div class="detail-value">{{ member.daily_notes }}</div>
+            </div>
+            {% endif %}
+
+            {% if member.remarks %}
+            <div class="detail-row">
+                <div class="detail-label">📝 备注</div>
+                <div class="detail-value">{{ member.remarks }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="detail-actions">
+            <a href="{{ url_for('edit_member', member_id=member.id) }}" class="btn btn-primary">✏️ 编辑信息</a>
+            <button class="btn btn-danger" onclick="deleteMember({{ member.id }}, '{{ member.name }}')">🗑️ 删除</button>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteMember(id, name) {
+    if (confirm(`确定要删除 "${name}" 的信息吗？\n此操作不可恢复。`)) {
+        fetch(`/api/members/${id}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('删除成功！');
+                window.location.href = '{{ url_for('index') }}';
+            } else {
+                alert('删除失败：' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('删除出错：' + error);
+        });
+    }
+}
+</script>
+{% endblock %}

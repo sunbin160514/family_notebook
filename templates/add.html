@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}添加家人 - 温馨家庭记事本{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <h2 class="section-title">
+        <span class="title-icon">➕</span>
+        添加新家人
+    </h2>
+
+    <form class="member-form" action="{{ url_for('add_member') }}" method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">姓名 <span class="required">*</span></label>
+                <input type="text" id="name" name="name" required placeholder="请输入姓名">
+            </div>
+
+            <div class="form-group">
+                <label for="nickname">昵称</label>
+                <input type="text" id="nickname" name="nickname" placeholder="亲密称呼">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="solar_birthday">阳历生日</label>
+                <input type="date" id="solar_birthday" name="solar_birthday">
+                <span class="hint">📅 选择日期</span>
+            </div>
+
+            <div class="form-group">
+                <label for="lunar_birthday">阴历生日</label>
+                <input type="text" id="lunar_birthday" name="lunar_birthday" placeholder="如：正月初一">
+                <span class="hint">🌙 手动输入农历日期</span>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="favorite_foods">喜欢的食物</label>
+                <textarea id="favorite_foods" name="favorite_foods" rows="2" placeholder="记录爱吃的菜肴、零食等"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="favorite_sports">喜欢的运动</label>
+                <textarea id="favorite_sports" name="favorite_sports" rows="2" placeholder="记录喜欢的运动项目"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="disliked_foods">讨厌的食物 / 忌口</label>
+            <textarea id="disliked_foods" name="disliked_foods" rows="2" placeholder="记录忌口或不喜欢的食物（如：香菜、海鲜等）"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="daily_notes">日常注意事项</label>
+            <textarea id="daily_notes" name="daily_notes" rows="3" placeholder="记录需要特别注意的事项（如：健康状况、过敏史等）"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="remarks">备注</label>
+            <textarea id="remarks" name="remarks" rows="2" placeholder="其他补充信息"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">取消</a>
+            <button type="submit" class="btn btn-primary">💾 保存</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
