@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:9090',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
