@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 头部导航 -->
+<section class="header-section">
+    <div class="header-actions">
+        <h1 class="page-title">🔔 通知设置</h1>
+        <div class="action-buttons">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">👥 家人列表</a>
+            <a href="{{ url_for('memos_list') }}" class="btn btn-secondary">📝 备忘录</a>
+        </div>
+    </div>
+</section>
+
+<!-- 设置表单 -->
+<section class="settings-section">
+    <form id="settingsForm" onsubmit="return saveSettings(event)">
+        <!-- 飞书设置 -->
+        <div class="setting-card">
+            <div class="setting-header">
+                <img src="https://sf1-scmcdn-cn.feishucdn.com/obj/feishu-static/midu-feishu/images/safety-logo.cac6a3ac.png" alt="飞书" class="icon">
+                <h2>飞书机器人</h2>
+            </div>
+            <div class="setting-content">
+                <div class="form-group">
+                    <label for="feishu_webhook_url">Webhook 地址</label>
+                    <input type="url" id="feishu_webhook_url" name="feishu_webhook_url"
+                           value="{{ settings.feishu_webhook_url }}"
+                           placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
+                    <span class="help-text">在飞书群设置中添加自定义机器人获取</span>
+                </div>
+                <div class="form-group">
+                    <label for="feishu_secret">Secret（可选）</label>
+                    <input type="text" id="feishu_secret" name="feishu_secret"
+                           value="{{ settings.feishu_secret }}"
+                           placeholder="签名校验密钥">
+                    <span class="help-text">如果开启了签名校验，请填写此项</span>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary" onclick="testFeishu()">测试发送</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 微信设置 -->
+        <div class="setting-card">
+            <div class="setting-header">
+                <span class="icon wechat-icon">💬</span>
+                <h2>微信企业号机器人</h2>
+            </div>
+            <div class="setting-content">
+                <div class="form-group">
+                    <label for="weixin_webhook_url">Webhook 地址</label>
+                    <input type="url" id="weixin_webhook_url" name="weixin_webhook_url"
+                           value="{{ settings.weixin_webhook_url }}"
+                           placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=...">
+                    <span class="help-text">在企业微信群机器人设置中获取</span>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary" onclick="testWeixin()">测试发送</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全局设置 -->
+        <div class="setting-card">
+            <div class="setting-header">
+                <span class="icon">⚙️</span>
+                <h2>全局设置</h2>
+            </div>
+            <div class="setting-content">
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="notification_enabled" name="notification_enabled"
+                               {% if settings.notification_enabled %}checked{% endif %}>
+                        启用消息推送
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 保存按钮 -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-large">💾 保存设置</button>
+        </div>
+    </form>
+</section>
+
+<!-- 使用说明 -->
+<section class="help-section">
+    <h2>📖 使用说明</h2>
+    <div class="help-content">
+        <h3>如何获取飞书 Webhook</h3>
+        <ol>
+            <li>在飞书群聊中点击右上角「设置」</li>
+            <li>选择「群机器人」→「添加机器人」</li>
+            <li>选择「自定义机器人」</li>
+            <li>复制 Webhook 地址</li>
+        </ol>
+
+        <h3>如何获取微信 Webhook</h3>
+        <ol>
+            <li>在企业微信群中右键点击群名称</li>
+            <li>选择「群机器人」→「添加机器人」</li>
+            <li>选择「新建机器人」，输入名称</li>
+            <li>复制 Webhook 地址</li>
+        </ol>
+    </div>
+</section>
+
+<style>
+.settings-section {
+    margin-bottom: 40px;
+}
+.setting-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.setting-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+.setting-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+.icon {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.wechat-icon {
+    background: #07c160;
+    color: white;
+    border-radius: 8px;
+}
+.help-text {
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+    display: block;
+}
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+.checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+.btn-large {
+    padding: 12px 40px;
+    font-size: 16px;
+}
+.help-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 25px;
+}
+.help-section h2 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+}
+.help-content h3 {
+    font-size: 16px;
+    margin: 20px 0 10px 0;
+    color: #333;
+}
+.help-content ol {
+    margin: 0 0 20px 0;
+    padding-left: 20px;
+    line-height: 1.8;
+}
+.help-content li {
+    color: #666;
+}
+.form-actions {
+    text-align: center;
+    margin-top: 30px;
+}
+</style>
+
+<script>
+// 保存设置
+async function saveSettings(event) {
+    event.preventDefault();
+
+    const formData = {
+        feishu_webhook_url: document.getElementById('feishu_webhook_url').value,
+        feishu_secret: document.getElementById('feishu_secret').value,
+        weixin_webhook_url: document.getElementById('weixin_webhook_url').value,
+        notification_enabled: document.getElementById('notification_enabled').checked
+    };
+
+    try {
+        const response = await fetch('/api/settings/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('设置保存成功！');
+        } else {
+            alert(result.message || '保存失败');
+        }
+    } catch (error) {
+        alert('请求失败：' + error.message);
+    }
+    return false;
+}
+
+// 测试飞书
+async function testFeishu() {
+    const webhook = document.getElementById('feishu_webhook_url').value;
+    if (!webhook) {
+        alert('请先填写飞书 Webhook 地址');
+        return;
+    }
+
+    try {
+        // 直接调用飞书API测试
+        const response = await fetch(webhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                msg_type: 'text',
+                content: {
+                    text: '📢 家庭管理系统测试消息\n\n如果您收到这条消息，说明飞书机器人配置成功！'
+                }
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.code === 0) {
+            alert('测试消息已发送到飞书，请查看群消息');
+        } else {
+            alert('发送失败：' + result.msg);
+        }
+    } catch (error) {
+        alert('请求失败：' + error.message);
+    }
+}
+
+// 测试微信
+async function testWeixin() {
+    const webhook = document.getElementById('weixin_webhook_url').value;
+    if (!webhook) {
+        alert('请先填写微信 Webhook 地址');
+        return;
+    }
+
+    try {
+        const response = await fetch(webhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                msgtype: 'text',
+                text: {
+                    content: '📢 家庭管理系统测试消息\n\n如果您收到这条消息，说明微信机器人配置成功！'
+                }
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.errcode === 0) {
+            alert('测试消息已发送到微信群，请查看群消息');
+        } else {
+            alert('发送失败：' + result.errmsg);
+        }
+    } catch (error) {
+        alert('请求失败：' + error.message);
+    }
+}
+</script>
+{% endblock %}

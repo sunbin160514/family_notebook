@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}温馨家庭记事本{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,11 +13,35 @@
         <header class="header">
             <div class="header-content">
                 <h1 class="logo">🏠 温馨家庭记事本</h1>
-                <nav class="nav">
-                    <a href="{{ url_for('index') }}" class="nav-link">🏡 首页</a>
-                    <a href="{{ url_for('add_member') }}" class="nav-link btn-add">➕ 添加家人</a>
-                    <a href="{{ url_for('export_data') }}" class="nav-link btn-export">📥 导出数据</a>
+
+                <!-- 汉堡菜单按钮 -->
+                <button class="menu-toggle" id="menuToggle" aria-label="打开菜单">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <!-- 导航菜单 -->
+                <nav class="nav" id="mainNav">
+                    <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                        🏡 首页
+                    </a>
+                    <a href="{{ url_for('memos_list') }}" class="nav-link {% if request.endpoint == 'memos_list' %}active{% endif %}">
+                        📝 备忘录
+                    </a>
+                    <a href="{{ url_for('add_member') }}" class="nav-link btn-add {% if request.endpoint == 'add_member' %}active{% endif %}">
+                        ➕ 添加家人
+                    </a>
+                    <a href="{{ url_for('export_data') }}" class="nav-link btn-export">
+                        📥 导出
+                    </a>
+                    <a href="{{ url_for('settings_notifications') }}" class="nav-link {% if request.endpoint == 'settings_notifications' %}active{% endif %}">
+                        ⚙️ 设置
+                    </a>
                 </nav>
+
+                <!-- 遮罩层 -->
+                <div class="nav-overlay" id="navOverlay"></div>
             </div>
         </header>
 
@@ -31,6 +55,59 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    <!-- 导航菜单脚本 -->
+    <script>
+        (function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const mainNav = document.getElementById('mainNav');
+            const navOverlay = document.getElementById('navOverlay');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // 切换菜单
+            function toggleMenu() {
+                menuToggle.classList.toggle('active');
+                mainNav.classList.toggle('active');
+                navOverlay.classList.toggle('active');
+                document.body.style.overflow = mainNav.classList.contains('active') ? 'hidden' : '';
+            }
+
+            // 关闭菜单
+            function closeMenu() {
+                menuToggle.classList.remove('active');
+                mainNav.classList.remove('active');
+                navOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // 绑定事件
+            menuToggle.addEventListener('click', toggleMenu);
+            navOverlay.addEventListener('click', closeMenu);
+
+            // 点击链接后关闭菜单
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        closeMenu();
+                    }
+                });
+            });
+
+            // 窗口大小改变时重置菜单
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeMenu();
+                }
+            });
+
+            // ESC键关闭菜单
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && mainNav.classList.contains('active')) {
+                    closeMenu();
+                }
+            });
+        })();
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

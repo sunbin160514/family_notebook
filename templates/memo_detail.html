@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 头部导航 -->
+<section class="header-section">
+    <div class="header-actions">
+        <h1 class="page-title">📝 备忘录详情</h1>
+        <div class="action-buttons">
+            <a href="{{ url_for('memos_list') }}" class="btn btn-secondary">← 返回列表</a>
+            <button class="btn btn-primary" onclick="openEditModal()">编辑</button>
+        </div>
+    </div>
+</section>
+
+<!-- 备忘录信息 -->
+<section class="memo-detail-section">
+    <div class="memo-info-card">
+        <div class="memo-info-header">
+            <span class="memo-category category-{{ memo.category }}">
+                {% if memo.category == 'life' %}生活{% elif memo.category == 'medical' %}医疗{% elif memo.category == 'education' %}教育{% elif memo.category == 'work' %}工作{% else %}其他{% endif %}
+            </span>
+            <span class="memo-priority priority-{{ memo.priority }}">
+                {% if memo.priority == 'high' %}🔴 高优先级{% elif memo.priority == 'normal' %}🟡 中优先级{% else %}🟢 低优先级{% endif %}
+            </span>
+        </div>
+
+        <h2 class="memo-detail-title">{{ memo.title }}</h2>
+
+        <div class="memo-detail-content">
+            {{ memo.content or '暂无内容' }}
+        </div>
+
+        <div class="memo-detail-meta">
+            {% if memo.member_name %}
+            <span class="meta-item">👤 关联家人：{{ memo.member_name }}</span>
+            {% endif %}
+            <span class="meta-item">📅 创建时间：{{ memo.created_at }}</span>
+            <span class="meta-item">📝 更新时间：{{ memo.updated_at }}</span>
+        </div>
+    </div>
+</section>
+
+<!-- 提醒设置 -->
+<section class="reminders-section">
+    <div class="section-header">
+        <h2>⏰ 提醒设置</h2>
+        <button class="btn btn-primary" onclick="openAddReminderModal()">添加提醒</button>
+    </div>
+
+    {% if reminders %}
+    <div class="reminder-list">
+        {% for reminder in reminders %}
+        <div class="reminder-item">
+            <div class="reminder-info">
+                <span class="reminder-title">{{ reminder.title or '提醒' }}</span>
+                <span class="reminder-time">{{ reminder.remind_at }}</span>
+                {% if reminder.repeat_type != 'none' %}
+                <span class="reminder-repeat">
+                    {% if reminder.repeat_type == 'daily' %}每天{% elif reminder.repeat_type == 'weekly' %}每周{% elif reminder.repeat_type == 'monthly' %}每月{% elif reminder.repeat_type == 'yearly' %}每年{% endif %}
+                </span>
+                {% endif %}
+            </div>
+            <div class="reminder-channels">
+                {% for channel in reminder.notify_channels %}
+                <span class="channel-tag channel-{{ channel }}">
+                    {% if channel == 'feishu' %}飞书{% elif channel == 'weixin' %}微信{% endif %}
+                </span>
+                {% endfor %}
+            </div>
+            <div class="reminder-status status-{{ reminder.status }}">
+                {% if reminder.status == 'pending' %}⏳ 待发送{% elif reminder.status == 'sent' %}✅ 已发送{% elif reminder.status == 'read' %}👁️ 已读{% else %}❌ 失败{% endif %}
+            </div>
+            <div class="reminder-actions">
+                <button class="btn btn-small" onclick="testReminder({{ reminder.id }})">测试发送</button>
+                <button class="btn btn-small btn-danger" onclick="deleteReminder({{ reminder.id }})">删除</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>暂无提醒设置</p>
+        <button class="btn btn-primary" onclick="openAddReminderModal()">添加提醒</button>
+    </div>
+    {% endif %}
+</section>
+
+<!-- 编辑备忘录弹窗 -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>编辑备忘录</h2>
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+        </div>
+        <form id="editMemoForm" onsubmit="return submitEditMemo(event)">
+            <div class="form-group">
+                <label for="edit_title">标题 *</label>
+                <input type="text" id="edit_title" name="title" value="{{ memo.title }}" required>
+            </div>
+            <div class="form-group">
+                <label for="edit_content">内容</label>
+                <textarea id="edit_content" name="content" rows="4">{{ memo.content or '' }}</textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="edit_category">分类</label>
+                    <select id="edit_category" name="category">
+                        <option value="life" {% if memo.category == 'life' %}selected{% endif %}>生活</option>
+                        <option value="medical" {% if memo.category == 'medical' %}selected{% endif %}>医疗</option>
+                        <option value="education" {% if memo.category == 'education' %}selected{% endif %}>教育</option>
+                        <option value="work" {% if memo.category == 'work' %}selected{% endif %}>工作</option>
+                        <option value="other" {% if memo.category == 'other' %}selected{% endif %}>其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_priority">优先级</label>
+                    <select id="edit_priority" name="priority">
+                        <option value="low" {% if memo.priority == 'low' %}selected{% endif %}>低</option>
+                        <option value="normal" {% if memo.priority == 'normal' %}selected{% endif %}>中</option>
+                        <option value="high" {% if memo.priority == 'high' %}selected{% endif %}>高</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 添加提醒弹窗 -->
+<div id="addReminderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>添加提醒</h2>
+            <span class="close-btn" onclick="closeAddReminderModal()">&times;</span>
+        </div>
+        <form id="addReminderForm" onsubmit="return submitAddReminder(event)">
+            <div class="form-group">
+                <label for="reminder_title">提醒标题</label>
+                <input type="text" id="reminder_title" name="title" placeholder="可选，默认使用备忘录标题">
+            </div>
+            <div class="form-group">
+                <label for="remind_at">提醒时间 *</label>
+                <input type="datetime-local" id="remind_at" name="remind_at" required>
+            </div>
+            <div class="form-group">
+                <label for="repeat_type">重复</label>
+                <select id="repeat_type" name="repeat_type">
+                    {% for type in repeat_types %}
+                    <option value="{{ type.value }}">{{ type.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" id="repeat_end_group" style="display:none;">
+                <label for="repeat_end_date">重复结束日期</label>
+                <input type="date" id="repeat_end_date" name="repeat_end_date">
+            </div>
+            <div class="form-group">
+                <label>通知渠道</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="notify_channels" value="feishu" checked> 飞书</label>
+                    <label><input type="checkbox" name="notify_channels" value="weixin"> 微信</label>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeAddReminderModal()">取消</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.page-title {
+    margin: 0;
+}
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+.memo-info-card {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+.memo-info-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.memo-category, .memo-priority {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+.memo-detail-title {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+}
+.memo-detail-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+.memo-detail-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: #666;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.section-header h2 {
+    margin: 0;
+}
+.reminder-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.reminder-item {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.reminder-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.reminder-title {
+    font-weight: 500;
+}
+.reminder-time {
+    color: #666;
+    font-size: 14px;
+}
+.reminder-repeat {
+    font-size: 12px;
+    color: #1976d2;
+}
+.reminder-channels {
+    display: flex;
+    gap: 8px;
+}
+.channel-tag {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+.channel-feishu {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+.channel-weixin {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+.reminder-status {
+    font-size: 14px;
+}
+.reminder-actions {
+    display: flex;
+    gap: 10px;
+}
+.checkbox-group {
+    display: flex;
+    gap: 20px;
+}
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+// 编辑弹窗
+function openEditModal() {
+    document.getElementById('editModal').style.display = 'block';
+}
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+// 添加提醒弹窗
+function openAddReminderModal() {
+    document.getElementById('addReminderModal').style.display = 'block';
+    // 设置默认时间为明天当前时间
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setMinutes(0);
+    document.getElementById('remind_at').value = tomorrow.toISOString().slice(0, 16);
+}
+function closeAddReminderModal() {
+    document.getElementById('addReminderModal').style.display = 'none';
+}
+
+// 重复类型切换
+{% for type in repeat_types %}
+document.getElementById('repeat_type')?.addEventListener('change', function() {
+    document.getElementById('repeat_end_group').style.display =
+        this.value === 'none' ? 'none' : 'block';
+});
+{% endfor %}
+
+// 提交编辑
+async function submitEditMemo(event) {
+    event.preventDefault();
+
+    const formData = {
+        title: document.getElementById('edit_title').value,
+        content: document.getElementById('edit_content').value,
+        category: document.getElementById('edit_category').value,
+        priority: document.getElementById('edit_priority').value
+    };
+
+    try {
+        const response = await fetch('/api/memos/{{ memo.id }}', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('保存成功！');
+            window.location.reload();
+        } else {
+            alert(result.message || '保存失败');
+        }
+    } catch (error) {
+        alert('请求失败：' + error.message);
+    }
+    return false;
+}
+
+// 提交添加提醒
+async function submitAddReminder(event) {
+    event.preventDefault();
+
+    const channels = [];
+    document.querySelectorAll('input[name="notify_channels"]:checked').forEach(cb => {
+        channels.push(cb.value);
+    });
+
+    if (channels.length === 0) {
+        alert('请至少选择一个通知渠道');
+        return false;
+    }
+
+    const formData = {
+        memo_id: {{ memo.id }},
+        title: document.getElementById('reminder_title').value,
+        remind_at: document.getElementById('remind_at').value,
+        repeat_type: document.getElementById('repeat_type').value,
+        repeat_end_date: document.getElementById('repeat_end_date').value || null,
+        notify_channels: channels
+    };
+
+    try {
+        const response = await fetch('/api/reminders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('提醒设置成功！');
+            window.location.reload();
+        } else {
+            alert(result.message || '设置失败');
+        }
+    } catch (error) {
+        alert('请求失败：' + error.message);
+    }
+    return false;
+}
+
+// 测试发送
+async function testReminder(id) {
+    try {
+        const response = await fetch('/api/reminders/' + id + '/test', {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('测试发送成功！');
+        } else {
+            alert(result.message || '发送失败');
+        }
+    } catch (error) {
+        alert('请求失败：' + error.message);
+    }
+}
+
+// 删除提醒
+async function deleteReminder(id) {
+    if (!confirm('确定要删除这个提醒吗？')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/reminders/' + id, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('删除成功！');
+            window.location.reload();
+        } else {
+            alert(result.message || '删除失败');
+        }
+    } catch (error) {
+        alert('请求失败：' + error.message);
+    }
+}
+
+// 点击弹窗外部关闭
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: family_notebook
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=172.17.0.1
+      - DB_PORT=3306
+      - DB_NAME=family_notebook
+      - DB_USER=root
+      - DB_PASSWORD=Test11223344@
+      - FLASK_PORT=5000
+      - FLASK_DEBUG=False
+    network_mode: host
+    restart: unless-stopped

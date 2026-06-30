@@ -32,11 +32,9 @@ class FamilyMember:
             password=Config.DB_PASSWORD,
             database=Config.DB_NAME,
             charset='utf8mb4',
+            use_unicode=True,
             cursorclass=pymysql.cursors.DictCursor
         )
-        # 设置字符集
-        with conn.cursor() as cursor:
-            cursor.execute("SET NAMES utf8mb4")
         return conn
 
     @classmethod
