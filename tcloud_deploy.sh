@@ -64,7 +64,7 @@ DB_PORT=3306
 DB_NAME=family_notebook
 DB_USER=root
 DB_PASSWORD=Test11223344@
-FLASK_PORT=5000
+FLASK_PORT=9090
 FLASK_DEBUG=False
 EOF
 
@@ -90,7 +90,7 @@ sleep 5
 if docker-compose ps | grep -q "Up"; then
     echo ""
     echo "✅ 部署成功！"
-    echo "🌐 应用访问地址: http://43.157.55.92:5000"
+    echo "🌐 应用访问地址: http://43.157.55.92:9090"
     echo "📊 查看日志: docker-compose logs -f"
     echo ""
     echo "常用命令:"
