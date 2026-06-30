@@ -23,9 +23,13 @@ app.config['JSON_AS_ASCII'] = False
 app.config['JSON_ENSURE_ASCII'] = False
 
 # 启用CORS，允许前端跨域访问
+# 从环境变量获取前端URL，默认为本地开发地址
+frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+cors_origins = ["http://localhost:5173", "http://127.0.0.1:5173", frontend_url]
+
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+        "origins": cors_origins,
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }

@@ -1,8 +1,10 @@
 import axios from 'axios'
 
 // 创建axios实例
+// 生产环境使用相对路径（通过Nginx反向代理）
+const isProd = import.meta.env.MODE === 'production'
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000',
+  baseURL: isProd ? '/api' : (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
