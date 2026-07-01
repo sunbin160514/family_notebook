@@ -82,7 +82,7 @@ class FeishuBot:
 
     def send_reminder(self, reminder, memo):
         """发送提醒消息"""
-        title = f"⏰ 家庭提醒：{reminder.title or memo.title}"
+        title = f"😊 温馨提醒：{memo.title}"
 
         content_parts = []
         if memo.content:
@@ -90,9 +90,6 @@ class FeishuBot:
 
         if memo.member_name:
             content_parts.append(f"\n**关联家人：**{memo.member_name}")
-
-        if reminder.remind_at:
-            content_parts.append(f"\n**提醒时间：**{reminder.remind_at}")
 
         if reminder.repeat_type and reminder.repeat_type != 'none':
             repeat_labels = {

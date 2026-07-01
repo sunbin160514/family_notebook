@@ -502,6 +502,16 @@ def api_test_reminder(reminder_id):
                         return jsonify({'success': False, 'message': f'微信发送失败：{result["message"]}'})
                 else:
                     return jsonify({'success': False, 'message': '微信webhook未配置'})
+            elif channel == 'pushplus':
+                from services.pushplus import PushPlus
+                token = settings.get('pushplus_token')
+                if token:
+                    bot = PushPlus(token)
+                    result = bot.send_reminder(reminder, memo)
+                    if not result['success']:
+                        return jsonify({'success': False, 'message': f'PushPlus发送失败：{result["message"]}'})
+                else:
+                    return jsonify({'success': False, 'message': 'PushPlus Token未配置'})
 
         return jsonify({'success': True, 'message': '测试发送成功'})
     except Exception as e:

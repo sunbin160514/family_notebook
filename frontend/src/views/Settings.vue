@@ -52,6 +52,21 @@
           </el-button>
         </el-form-item>
 
+        <el-divider> PushPlus（个人微信）</el-divider>
+
+        <el-form-item label="Token">
+          <el-input
+            v-model="form.pushplus_token"
+            placeholder="PushPlus 用户 Token，绑定个人微信"
+          />
+        </el-form-item>
+
+        <el-form-item>
+          <el-button @click="testPushPlus" :disabled="!form.pushplus_token">
+            测试微信推送
+          </el-button>
+        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="handleSave" :loading="saving">
             保存设置
@@ -68,6 +83,14 @@
       </template>
 
       <div class="help-content">
+        <h4>如何获取 PushPlus Token（个人微信）</h4>
+        <ol>
+          <li>关注公众号「PushPlus 推送加」</li>
+          <li>点击菜单「功能」→「开发设置」</li>
+          <li>复制页面上的「Token」</li>
+          <li>粘贴到上方输入框并保存</li>
+        </ol>
+
         <h4>如何获取飞书 Webhook</h4>
         <ol>
           <li>在飞书群聊中点击右上角「设置」</li>
@@ -98,6 +121,7 @@ const form = reactive({
   feishu_webhook_url: '',
   feishu_secret: '',
   weixin_webhook_url: '',
+  pushplus_token: '',
   notification_enabled: true
 })
 
@@ -156,6 +180,25 @@ const testWeixin = async () => {
       ElMessage.success('测试消息已发送，请查看微信群')
     } else {
       ElMessage.error(response.data.errmsg)
+    }
+  } catch (error) {
+    ElMessage.error('发送失败：' + error.message)
+  }
+}
+
+const testPushPlus = async () => {
+  try {
+    const response = await axios.post('http://www.pushplus.plus/send', {
+      token: form.pushplus_token,
+      title: '😊 温馨提醒：测试消息',
+      content: '<p>📢 这是一条测试消息</p><p>如果您收到这条消息，说明 PushPlus 配置成功！</p>',
+      template: 'html'
+    })
+
+    if (response.data.code === 200) {
+      ElMessage.success('测试消息已发送，请查看个人微信')
+    } else {
+      ElMessage.error(response.data.msg)
     }
   } catch (error) {
     ElMessage.error('发送失败：' + error.message)

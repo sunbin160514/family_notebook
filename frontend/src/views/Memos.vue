@@ -36,6 +36,7 @@
         :key="memo.id"
         :memo="memo"
         @delete="handleDelete"
+        @notify="handleNotify"
       />
     </div>
 
@@ -107,6 +108,13 @@
             value-format="YYYY-MM-DD HH:mm:ss"
             :default-time="new Date(2000, 1, 1, 23, 59, 0)"
           />
+        </el-form-item>
+        <el-form-item label="通知渠道">
+          <el-checkbox-group v-model="form.notify_channels">
+            <el-checkbox label="feishu">飞书</el-checkbox>
+            <el-checkbox label="weixin">企业微信</el-checkbox>
+            <el-checkbox label="pushplus">个人微信(PushPlus)</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -193,6 +201,15 @@ const handleDelete = async (id) => {
     ElMessage.success('删除成功')
   } catch (error) {
     ElMessage.error(error.message || '删除失败')
+  }
+}
+
+const handleNotify = async (reminderId) => {
+  try {
+    await memoStore.testReminder(reminderId)
+    ElMessage.success('提醒发送成功')
+  } catch (error) {
+    ElMessage.error(error.message || '提醒发送失败')
   }
 }
 </script>

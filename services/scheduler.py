@@ -13,6 +13,7 @@ from models.system_setting import SystemSetting
 from models.notification_log import NotificationLog
 from services.feishu_bot import FeishuBot
 from services.weixin_bot import WeixinBot
+from services.pushplus import PushPlus
 
 
 class ReminderScheduler:
@@ -96,6 +97,8 @@ class ReminderScheduler:
                     self._send_feishu(reminder, memo, settings)
                 elif channel == 'weixin':
                     self._send_weixin(reminder, memo, settings)
+                elif channel == 'pushplus':
+                    self._send_pushplus(reminder, memo, settings)
 
             # 标记为已发送
             reminder.mark_as_sent()
@@ -146,6 +149,27 @@ class ReminderScheduler:
         )
 
         print(f"微信发送结果：{result['message']}")
+
+    def _send_pushplus(self, reminder, memo, settings):
+        """发送到 PushPlus（个人微信）"""
+        token = settings.get('pushplus_token')
+
+        if not token:
+            print("PushPlus Token 未配置")
+            return
+
+        bot = PushPlus(token)
+        result = bot.send_reminder(reminder, memo)
+
+        # 记录日志
+        NotificationLog.create(
+            reminder_id=reminder.id,
+            channel='pushplus',
+            status='success' if result['success'] else 'failed',
+            response=str(result.get('data', ''))[:500]
+        )
+
+        print(f"PushPlus 发送结果：{result['message']}")
 
 
 # 全局调度器实例

@@ -10,6 +10,7 @@ class SystemSetting:
         'feishu_webhook_url': '',
         'feishu_secret': '',
         'weixin_webhook_url': '',
+        'pushplus_token': '',
         'notification_enabled': 'true'
     }
 
@@ -98,6 +99,7 @@ class SystemSetting:
             'feishu_webhook_url': cls.get('feishu_webhook_url'),
             'feishu_secret': cls.get('feishu_secret'),
             'weixin_webhook_url': cls.get('weixin_webhook_url'),
+            'pushplus_token': cls.get('pushplus_token'),
             'notification_enabled': cls.get('notification_enabled') == 'true'
         }
 
@@ -108,6 +110,7 @@ class SystemSetting:
             ('feishu_webhook_url', data.get('feishu_webhook_url', ''), '飞书机器人Webhook'),
             ('feishu_secret', data.get('feishu_secret', ''), '飞书机器人Secret'),
             ('weixin_webhook_url', data.get('weixin_webhook_url', ''), '微信机器人Webhook'),
+            ('pushplus_token', data.get('pushplus_token', ''), 'PushPlus Token'),
             ('notification_enabled', 'true' if data.get('notification_enabled') else 'false', '是否启用通知')
         ]
 

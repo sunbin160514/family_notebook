@@ -26,6 +26,16 @@
         </span>
       </div>
       <div class="actions">
+        <el-button
+          v-if="hasReminder"
+          type="warning"
+          size="small"
+          plain
+          @click="handleNotify"
+          :loading="notifying"
+        >
+          <el-icon><Bell /></el-icon> 提醒
+        </el-button>
         <router-link :to="`/memos/${memo.id}`">
           <el-button type="primary" size="small" plain>查看详情</el-button>
         </router-link>
@@ -45,7 +55,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { Bell } from '@element-plus/icons-vue'
 
 const props = defineProps({
   memo: {
@@ -54,7 +65,9 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['delete'])
+const emit = defineEmits(['delete', 'notify'])
+
+const notifying = ref(false)
 
 const hasReminder = computed(() => {
   return props.memo.reminders && props.memo.reminders.length > 0
@@ -127,6 +140,16 @@ const formatDate = (dateStr) => {
 
 const handleDelete = () => {
   emit('delete', props.memo.id)
+}
+
+const handleNotify = async () => {
+  if (!reminderInfo.value) return
+  notifying.value = true
+  try {
+    await emit('notify', reminderInfo.value.id)
+  } finally {
+    notifying.value = false
+  }
 }
 </script>
 
@@ -259,6 +282,13 @@ const handleDelete = () => {
 .actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.actions .el-button {
+  height: 28px;
+  padding: 0 12px;
+  line-height: 28px;
 }
 
 @media (max-width: 480px) {
