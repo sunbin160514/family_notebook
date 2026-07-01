@@ -16,8 +16,8 @@ RUN npm run build
 # Nginx托管阶段
 FROM nginx:alpine
 
-# 复制构建产物到nginx目录
-COPY --from=builder /app/dist /usr/share/nginx/html
+# 复制构建产物到nginx目录（带项目路径前缀）
+COPY --from=builder /app/dist /usr/share/nginx/html/family_notebook
 
 # 复制nginx配置
 COPY nginx.conf /etc/nginx/conf.d/default.conf
