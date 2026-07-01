@@ -27,6 +27,9 @@ app.config['JSON_ENSURE_ASCII'] = False
 frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 cors_origins = ["http://localhost:5173", "http://127.0.0.1:5173", frontend_url]
 
+# 添加带路径的CORS支持
+cors_origins.append(f"{frontend_url}/family_notebook")
+
 CORS(app, resources={
     r"/api/*": {
         "origins": cors_origins,
