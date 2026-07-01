@@ -38,7 +38,7 @@ services:
       - FLASK_PORT=5000
       - FLASK_DEBUG=False
       # 允许前端域名跨域（生产环境）
-      - FRONTEND_URL=http://localhost
+      - FRONTEND_URL=http://43.157.55.92
     networks:
       - app_network
     depends_on:
