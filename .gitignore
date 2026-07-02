@@ -48,6 +48,11 @@ instance/
 *.sqlite
 *.sqlite3
 
+# Runtime data
+mysql_data/
+mysql_conf/
+init_data.sql
+
 # Logs
 *.log
 logs/
