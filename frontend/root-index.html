@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>家庭记事本</title>
+    <link rel="icon" type="image/svg+xml" href="/family_notebook/favicon.svg" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+        background: linear-gradient(135deg, #fff5f5 0%, #f0f7ff 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+      }
+
+      .container {
+        text-align: center;
+        padding: 40px 24px;
+        max-width: 480px;
+      }
+
+      .logo {
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 24px;
+        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 12px 32px rgba(255, 154, 158, 0.25);
+      }
+
+      .logo svg {
+        width: 56px;
+        height: 56px;
+        color: #fff;
+      }
+
+      h1 {
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #2c3e50;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 32px;
+      }
+
+      .enter-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 36px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 500;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .enter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+      }
+
+      .enter-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .footer {
+        margin-top: 48px;
+        font-size: 13px;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </div>
+      <h1>家庭记事本</h1>
+      <p class="subtitle">
+        记录每一位家人的信息、备忘事项与重要提醒，<br />
+        让家庭的点滴温暖触手可及。
+      </p>
+      <a class="enter-btn" href="/family_notebook/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+        进入应用
+      </a>
+      <div class="footer">温馨家庭 · 从记录开始</div>
+    </div>
+  </body>
+</html>
